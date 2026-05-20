@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title>Signed Copies | Sage Morrison</title>
+    <meta name="description" content="Request a signed copy of any Sage Morrison book by mail. Direct from the author. About 14 days from order to delivery.">
+    <link rel="canonical" href="https://www.authorsagemorrison.com/signed-copies.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Signed Copies | Sage Morrison">
+    <meta property="og:description" content="Request a signed copy of any Sage Morrison book by mail. Direct from the author. About 14 days from order to delivery.">
+    <meta property="og:url" content="https://www.authorsagemorrison.com/signed-copies.html">
+    <meta property="og:image" content="https://www.authorsagemorrison.com/sage-morrison.png">
+    <link rel="icon" type="image/png" href="/sage-morrison.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="noise-overlay"></div>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="/" class="logo">Sage Morrison</a>
+            <div class="nav-links">
+                <a href="/#books">Books</a>
+                <a href="/blog/">Blog</a>
+                <a href="/about.html">About</a>
+                <a href="/practices/">Practices</a>
+                <a href="/resources.html">Resources</a>
+                <a href="/newsletter.html">Newsletter</a>
+                <a href="/#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+    <main class="legal-page">
+        <h1>Signed Copies</h1>
+        <p class="updated">Direct from Sage. By mail. About 14 days.</p>
+
+        <p>If you’d like a copy signed by hand, I’d be glad to send you one. Fill in the
+        form below. Your request comes directly to me. I’ll sign your book, write
+        whatever inscription you ask for (within reason — I’ll politely decline things I
+        can’t put my name to), package it carefully, and put it in the mail.</p>
+
+        <p><strong>Timing.</strong> Allow about <strong>14 days</strong> from when you
+        submit this form to when the book arrives at your door. Most orders go out
+        within the first week; the rest are postal time. If something goes sideways I
+        will email you.</p>
+
+        <p><strong>Payment.</strong> I’ll send you a short email with a payment link
+        (Stripe or PayPal — your choice) and confirm the shipping cost for your address
+        before I post the book. No pre-payment through this form; no card details
+        collected here.</p>
+
+        <p><strong>Books available signed.</strong> <em>Grace Beyond the Glass</em> and
+        <em>The Opera House Affair</em> are in stock now. <em>Healthy Self-Regard</em>
+        can be reserved — your signed copy will ship at launch. <em>Cancer, Made
+        Clear</em> is also available.</p>
+
+        <form id="sc-form" class="sc-form" novalidate>
+            <div class="sc-field">
+                <label>Which book?</label>
+                <select id="sc-book" required>
+                    <option value="">— pick one —</option>
+                    <option>Healthy Self-Regard</option>
+                    <option>Grace Beyond the Glass</option>
+                    <option>The Opera House Affair</option>
+                    <option>Cancer, Made Clear</option>
+                </select>
+            </div>
+            <div class="sc-field">
+                <label>Your name</label>
+                <input type="text" id="sc-name" autocomplete="name" required>
+            </div>
+            <div class="sc-field">
+                <label>Email (so I can confirm)</label>
+                <input type="email" id="sc-email" autocomplete="email" required>
+            </div>
+            <div class="sc-field">
+                <label>Shipping address — street</label>
+                <input type="text" id="sc-address1" autocomplete="address-line1" required>
+            </div>
+            <div class="sc-field">
+                <label>Apartment / unit (optional)</label>
+                <input type="text" id="sc-address2" autocomplete="address-line2">
+            </div>
+            <div class="sc-row">
+                <div class="sc-field">
+                    <label>City</label>
+                    <input type="text" id="sc-city" autocomplete="address-level2" required>
+                </div>
+                <div class="sc-field">
+                    <label>State / region</label>
+                    <input type="text" id="sc-region" autocomplete="address-level1">
+                </div>
+            </div>
+            <div class="sc-row">
+                <div class="sc-field">
+                    <label>Postal / ZIP code</label>
+                    <input type="text" id="sc-postal" autocomplete="postal-code" required>
+                </div>
+                <div class="sc-field">
+                    <label>Country</label>
+                    <input type="text" id="sc-country" autocomplete="country-name" value="United States" required>
+                </div>
+            </div>
+            <div class="sc-field">
+                <label>Inscription (optional)</label>
+                <textarea id="sc-inscription" rows="3" placeholder="e.g. ‘For Sarah, with love’ — or leave blank for just my signature."></textarea>
+            </div>
+            <div class="sc-field">
+                <label>Anything else I should know? (optional)</label>
+                <textarea id="sc-notes" rows="2"></textarea>
+            </div>
+            <button type="submit" id="sc-submit" class="btn btn-primary">Send the request</button>
+            <div class="signup-status" id="sc-status"></div>
+        </form>
+
+        <a href="/" class="legal-back">← Back to the site</a>
+    </main>
+
+    <script>
+    (function () {
+        // Pre-fill book from ?book=slug
+        var slug = new URLSearchParams(location.search).get('book');
+        var map = {
+            'healthy-self-regard'    : 'Healthy Self-Regard',
+            'grace-beyond-the-glass' : 'Grace Beyond the Glass',
+            'the-opera-house-affair' : 'The Opera House Affair',
+            'cancer-made-clear'      : 'Cancer, Made Clear',
+        };
+        if (slug && map[slug]) document.getElementById('sc-book').value = map[slug];
+
+        var form = document.getElementById('sc-form');
+        var btn  = document.getElementById('sc-submit');
+        var st   = document.getElementById('sc-status');
+        function set(m, c) { st.textContent = m; st.className = 'signup-status ' + (c||''); }
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            btn.disabled = true; set('Sending…');
+            var payload = {
+                book:        document.getElementById('sc-book').value,
+                name:        document.getElementById('sc-name').value,
+                email:       document.getElementById('sc-email').value,
+                address1:    document.getElementById('sc-address1').value,
+                address2:    document.getElementById('sc-address2').value,
+                city:        document.getElementById('sc-city').value,
+                region:      document.getElementById('sc-region').value,
+                postal_code: document.getElementById('sc-postal').value,
+                country:     document.getElementById('sc-country').value,
+                inscription: document.getElementById('sc-inscription').value,
+                notes:       document.getElementById('sc-notes').value,
+            };
+            try {
+                var r = await fetch('/api/signed-copy', {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                var d = await r.json().catch(function () { return {}; });
+                if (d.status === 'received') {
+                    set('Got it. I will email you within a few days to confirm payment and shipping. Thank you for asking for a signed copy — it means a great deal.', 'ok');
+                    form.reset();
+                } else if (d.status === 'missing') {
+                    set('Something’s missing from the form: ' + d.field + '. Please fill it in.', 'err');
+                } else if (d.status === 'invalid_email') {
+                    set('That email doesn’t look quite right.', 'err');
+                } else {
+                    set('Something stalled on our end. Try again in a moment?', 'err');
+                }
+            } catch (e) { set('Network hiccup. Try again in a moment.', 'err'); }
+            finally { btn.disabled = false; }
+        });
+    })();
+    </script>
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">© 2026 Sage Morrison. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/privacy.html">Privacy Policy</a>
+                <a href="/signed-copies.html">Signed Copies</a>
+                <a href="/book-club.html">Book Club</a>
+                <a href="/sea-ranch.html">Sea Ranch</a>
+            </div>
+        </div>
+    </footer>
+    <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
