@@ -82,7 +82,7 @@ export default async function handler(req) {
   const timezone = req.headers.get('x-vercel-ip-timezone')        || null;
 
   // Call the SECURITY DEFINER RPC. Anon key only allows EXECUTE on this function.
-  const rpcUrl = `${SUPABASE_URL}/rest/v1/rpc/track_event`;
+  const rpcUrl = `${SUPABASE_URL}/rest/v1/rpc/sage_track_event`;
   const rpcRes = await fetch(rpcUrl, {
     method : 'POST',
     headers: {
@@ -90,7 +90,6 @@ export default async function handler(req) {
       'accept'       : 'application/json',
       'apikey'       : SUPABASE_ANON_KEY,
       'authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'content-profile': 'sage_analytics',
     },
     body: JSON.stringify({
       p_session_id  : sessionId,
