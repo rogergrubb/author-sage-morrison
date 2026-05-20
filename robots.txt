@@ -1,0 +1,10 @@
+# https://www.authorsagemorrison.com/robots.txt
+# Last updated 2026-05-20
+
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /dashboard.html
+Disallow: /api/
+
+Sitemap: https://www.authorsagemorrison.com/sitemap.xml
