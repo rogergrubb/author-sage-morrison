@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Dashboard — Sage Morrison</title>
+    <link rel="icon" type="image/png" href="/sage-morrison.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Text:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <style>
+        :root {
+            --bg: #14140f;
+            --panel: #1c1b15;
+            --panel-2: #25241c;
+            --border: #3a3829;
+            --text: #ece6d5;
+            --muted: #9e957f;
+            --accent: #F4A92C;
+            --accent-2: #C66B1A;
+            --good: #7ec07e;
+            --bad: #d97a7a;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+                     font-family: 'Crimson Text', Georgia, serif; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { color: #FFD56B; }
+        button {
+            font-family: inherit; font-size: 1rem; padding: 0.6rem 1.4rem;
+            background: var(--accent-2); color: #fff; border: 1px solid var(--accent-2);
+            border-radius: 2px; cursor: pointer;
+            transition: background 0.18s, border-color 0.18s;
+        }
+        button:hover { background: var(--accent); border-color: var(--accent); }
+        button.ghost {
+            background: transparent; color: var(--text);
+            border-color: var(--border);
+        }
+        button.ghost:hover { background: rgba(255,255,255,0.05); border-color: var(--text); }
+        input[type=email] {
+            font-family: inherit; font-size: 1rem; padding: 0.6rem 0.9rem;
+            background: var(--panel-2); color: var(--text);
+            border: 1px solid var(--border); border-radius: 2px; min-width: 280px;
+        }
+        input[type=email]:focus { outline: none; border-color: var(--accent); }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.5rem 2rem; border-bottom: 1px solid var(--border);
+        }
+        .header h1 {
+            margin: 0; font-family: 'Playfair Display', serif; font-size: 1.6rem;
+            font-weight: 400;
+        }
+        .header .who { color: var(--muted); font-size: 0.95rem; }
+        main { padding: 2rem; max-width: 1280px; margin: 0 auto; }
+        h2 {
+            margin: 0 0 1rem; font-family: 'Playfair Display', serif;
+            font-size: 1.4rem; font-weight: 400; letter-spacing: 0.5px;
+        }
+
+        /* Login card */
+        .login-shell {
+            min-height: 80vh; display: flex; align-items: center; justify-content: center;
+        }
+        .login-card {
+            background: var(--panel); border: 1px solid var(--border); padding: 2.5rem;
+            border-radius: 4px; max-width: 460px; width: 100%;
+        }
+        .login-card p { color: var(--muted); margin-top: 0; line-height: 1.55; }
+        .login-form { display: flex; gap: 0.6rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .login-status { margin-top: 1rem; font-size: 0.95rem; }
+        .login-status.ok { color: var(--good); }
+        .login-status.err { color: var(--bad); }
+
+        /* Stat tiles */
+        .tiles {
+            display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin-bottom: 2rem;
+        }
+        .tile {
+            background: var(--panel); border: 1px solid var(--border); padding: 1.25rem 1.4rem;
+            border-radius: 4px;
+        }
+        .tile .num {
+            font-family: 'Playfair Display', serif; font-size: 2.4rem; line-height: 1;
+            color: var(--accent);
+        }
+        .tile .lbl { color: var(--muted); margin-top: 0.4rem; font-size: 0.9rem; }
+
+        /* Two-column row */
+        .row2 {
+            display: grid; gap: 1.25rem; grid-template-columns: 2fr 1fr; margin-bottom: 2rem;
+        }
+        @media (max-width: 900px) { .row2 { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--panel); border: 1px solid var(--border); padding: 1.25rem;
+            border-radius: 4px;
+        }
+
+        /* Map */
+        #map {
+            height: 460px; border-radius: 3px; background: #0e0e0a;
+            border: 1px solid var(--border);
+        }
+        .leaflet-container { background: #0e0e0a; font-family: 'Crimson Text', serif; }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background: var(--panel-2); color: var(--text);
+        }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+        th, td {
+            text-align: left; padding: 0.55rem 0.7rem;
+            border-bottom: 1px solid var(--border);
+        }
+        th { color: var(--muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase;
+             letter-spacing: 1px; }
+        td.mono { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.85rem;
+                  color: var(--muted); }
+        .pill {
+            display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px;
+            background: rgba(244, 169, 44, 0.16); color: var(--accent);
+            font-size: 0.78rem; font-family: 'JetBrains Mono', monospace;
+        }
+        .scroll { max-height: 460px; overflow: auto; }
+
+        .empty { color: var(--muted); padding: 1.5rem 0; text-align: center; font-style: italic; }
+        .footer-note { color: var(--muted); font-size: 0.85rem; margin-top: 2rem;
+                       padding-top: 1rem; border-top: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Sage Morrison · Dashboard</h1>
+        <div>
+            <span class="who" id="whoami"></span>
+            <button class="ghost" id="signout" style="display:none; margin-left:0.6rem;">Sign out</button>
+        </div>
+    </div>
+
+    <main>
+        <!-- LOGIN VIEW -->
+        <section id="login-shell" class="login-shell">
+            <div class="login-card">
+                <h2 style="margin-top:0">Sign in</h2>
+                <p>This dashboard is private to Sage Morrison. Enter your admin email and you'll get a one-tap login link in your inbox. No password.</p>
+                <form id="login-form" class="login-form" novalidate>
+                    <input type="email" id="email" placeholder="admin email" autocomplete="email" required>
+                    <button type="submit" id="login-btn">Send magic link</button>
+                </form>
+                <div class="login-status" id="login-status"></div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD VIEW -->
+        <section id="dash-shell" style="display:none;">
+            <div class="tiles" id="tiles"></div>
+
+            <div class="row2">
+                <div class="panel">
+                    <h2>Where visitors are coming from</h2>
+                    <div id="map"></div>
+                </div>
+                <div class="panel">
+                    <h2>Top countries</h2>
+                    <div class="scroll" id="by-country"></div>
+                </div>
+            </div>
+
+            <div class="row2">
+                <div class="panel">
+                    <h2>Recent activity</h2>
+                    <div class="scroll" id="recent-events"></div>
+                </div>
+                <div class="panel">
+                    <h2>What got clicked</h2>
+                    <div class="scroll" id="by-type"></div>
+                </div>
+            </div>
+
+            <div class="footer-note">
+                Data covers the last 90 days (auto-purged per the
+                <a href="/privacy.html">Privacy Policy</a>). Approximate location only —
+                no street addresses, no names, no emails. IPs are SHA-256 hashed before storage.
+            </div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+
+        // Public values — anon key is designed to be public; security is RLS-based.
+        const SUPABASE_URL      = 'https://vskvejzvfdqxqionhfmk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZza3Zlanp2ZmRxeHFpb25oZm1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODMzMDEsImV4cCI6MjA5MTE1OTMwMX0.1HWfcbT8F6xKD2AH6nM4xdoGcnlzl7HFl-Xui4-fvr8';
+        const ADMIN_EMAIL       = 'rogergrubbrealestate@gmail.com';
+        const REDIRECT          = window.location.origin + '/dashboard.html';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const $ = (id) => document.getElementById(id);
+
+        // ---- UI helpers ----
+        function setStatus(msg, cls = '') {
+            const el = $('login-status');
+            el.textContent = msg;
+            el.className = 'login-status ' + cls;
+        }
+        function showLogin() { $('login-shell').style.display = 'flex'; $('dash-shell').style.display = 'none'; }
+        function showDash()  { $('login-shell').style.display = 'none'; $('dash-shell').style.display = 'block'; }
+
+        // ---- Auth flow ----
+        $('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = $('email').value.trim().toLowerCase();
+            if (!email) return;
+            $('login-btn').disabled = true;
+            setStatus('Sending magic link…', '');
+            const { error } = await supabase.auth.signInWithOtp({
+                email,
+                options: { emailRedirectTo: REDIRECT, shouldCreateUser: true },
+            });
+            $('login-btn').disabled = false;
+            if (error) {
+                setStatus('Error: ' + error.message, 'err');
+            } else {
+                setStatus('Check your email for the magic link. Click it and you\'ll land back here signed in.', 'ok');
+            }
+        });
+
+        $('signout').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            $('whoami').textContent = '';
+            $('signout').style.display = 'none';
+            showLogin();
+        });
+
+        // ---- Session bootstrap ----
+        async function init() {
+            // The magic-link callback returns with a hash fragment; supabase-js
+            // picks it up on instantiation. Wait briefly then check.
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { showLogin(); return; }
+
+            const email = (session.user.email || '').toLowerCase();
+            $('whoami').textContent = email;
+            $('signout').style.display = '';
+
+            if (email !== ADMIN_EMAIL.toLowerCase()) {
+                $('login-shell').style.display = 'flex';
+                $('dash-shell').style.display  = 'none';
+                setStatus(`Signed in as ${email}, but this dashboard is locked to ${ADMIN_EMAIL}.`, 'err');
+                return;
+            }
+
+            showDash();
+            await loadDashboard();
+        }
+
+        supabase.auth.onAuthStateChange((_event, session) => {
+            if (session) {
+                // Clean the URL hash after auth callback (cosmetic).
+                if (window.location.hash) history.replaceState(null, '', window.location.pathname);
+                init();
+            }
+        });
+
+        // ---- Data + render ----
+        let mapInstance = null;
+        async function loadDashboard() {
+            const { data, error } = await supabase.rpc('sage_dashboard_data');
+            if (error) {
+                console.error(error);
+                $('tiles').innerHTML = `<div class="tile"><div class="num">—</div><div class="lbl">${error.message}</div></div>`;
+                return;
+            }
+            if (!data) { $('tiles').innerHTML = '<div class="empty">No data yet.</div>'; return; }
+
+            renderTiles(data.stats || {});
+            renderCountries(data.by_country || []);
+            renderEventTypes(data.by_event_type || []);
+            renderRecent(data.recent_events || []);
+            renderMap(data.map_points || []);
+        }
+
+        function fmtN(n)  { return (n == null) ? '—' : Number(n).toLocaleString(); }
+        function fmtTs(t) { return t ? new Date(t).toLocaleString() : '—'; }
+
+        function renderTiles(s) {
+            const tiles = [
+                ['Total visits',   s.total_views],
+                ['Unique sessions',s.unique_sessions],
+                ['Book card clicks', s.book_clicks],
+                ['Amazon clicks',  s.amazon_clicks],
+                ['Contact clicks', s.contact_clicks],
+                ['Countries',      s.distinct_countries],
+            ];
+            $('tiles').innerHTML = tiles.map(([lbl, n]) =>
+                `<div class="tile"><div class="num">${fmtN(n)}</div><div class="lbl">${lbl}</div></div>`
+            ).join('');
+        }
+
+        function renderCountries(rows) {
+            if (!rows.length) { $('by-country').innerHTML = '<div class="empty">No visits yet.</div>'; return; }
+            $('by-country').innerHTML = `
+                <table><thead><tr><th>Country</th><th>Visits</th><th>Sessions</th></tr></thead>
+                <tbody>${rows.map(r => `
+                    <tr>
+                        <td>${r.country || '—'}</td>
+                        <td>${fmtN(r.visits)}</td>
+                        <td>${fmtN(r.unique_sessions)}</td>
+                    </tr>`).join('')}</tbody></table>`;
+        }
+
+        function renderEventTypes(rows) {
+            if (!rows.length) { $('by-type').innerHTML = '<div class="empty">No events yet.</div>'; return; }
+            $('by-type').innerHTML = `
+                <table><thead><tr><th>Event</th><th>Label</th><th>Hits</th></tr></thead>
+                <tbody>${rows.map(r => `
+                    <tr>
+                        <td><span class="pill">${r.event_type}</span></td>
+                        <td>${(r.event_label ?? '').toString().slice(0, 60) || '—'}</td>
+                        <td>${fmtN(r.hits)}</td>
+                    </tr>`).join('')}</tbody></table>`;
+        }
+
+        function renderRecent(rows) {
+            if (!rows.length) { $('recent-events').innerHTML = '<div class="empty">No events yet. Once visitors accept the consent banner, activity will appear here.</div>'; return; }
+            $('recent-events').innerHTML = `
+                <table><thead><tr><th>When</th><th>Event</th><th>Label</th><th>From</th></tr></thead>
+                <tbody>${rows.map(r => {
+                    const loc = [r.city, r.region, r.country].filter(Boolean).join(', ') || '—';
+                    return `<tr>
+                        <td class="mono">${fmtTs(r.created_at)}</td>
+                        <td><span class="pill">${r.event_type}</span></td>
+                        <td>${(r.event_label ?? '').toString().slice(0, 50) || '—'}</td>
+                        <td>${loc}</td>
+                    </tr>`;
+                }).join('')}</tbody></table>`;
+        }
+
+        function renderMap(points) {
+            if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+            const tile = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+            mapInstance = L.map('map', { zoomControl: true, preferCanvas: true })
+                .setView([20, 0], 2);
+            L.tileLayer(tile, {
+                attribution: '&copy; OpenStreetMap & CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19,
+            }).addTo(mapInstance);
+
+            if (!points.length) return;
+            const group = L.featureGroup();
+            points.forEach(p => {
+                if (typeof p.latitude !== 'number' || typeof p.longitude !== 'number') return;
+                const radius = Math.min(22, 4 + Math.sqrt(p.visits || 1) * 2);
+                const m = L.circleMarker([p.latitude, p.longitude], {
+                    radius,
+                    color: '#F4A92C',
+                    fillColor: '#F4A92C',
+                    fillOpacity: 0.45,
+                    weight: 1.5,
+                }).bindPopup(`<strong>${p.label || 'unknown'}</strong><br>
+                              ${p.country || ''}<br>
+                              ${p.visits} visit${p.visits === 1 ? '' : 's'} · ${p.sessions} session${p.sessions === 1 ? '' : 's'}`);
+                group.addLayer(m);
+            });
+            group.addTo(mapInstance);
+            try { mapInstance.fitBounds(group.getBounds().pad(0.2), { maxZoom: 6 }); } catch (e) {}
+        }
+
+        // Kick it.
+        init();
+    </script>
+</body>
+</html>

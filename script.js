@@ -99,3 +99,127 @@ titleLines.forEach((line, index) => {
         line.style.opacity = '1';
     }, delay * index);
 });
+
+
+// =============================================================================
+// Phase 3 — visitor analytics tracker
+// All tracking is gated on window.sageTrackingAllowed() (set by the consent
+// banner). If the visitor declines, this module is silent. If they accept
+// after page load, the `sage:consent` event boots it on the spot.
+// =============================================================================
+(function () {
+    var ENDPOINT = '/api/track';
+    var booted   = false;
+
+    function readSessionId() {
+        try {
+            var sid = sessionStorage.getItem('sage_sid');
+            if (!sid) {
+                sid = (crypto.randomUUID ? crypto.randomUUID()
+                       : Math.random().toString(36).slice(2) + Date.now().toString(36));
+                sessionStorage.setItem('sage_sid', sid);
+            }
+            return sid;
+        } catch (e) {
+            return 'no-storage-' + Math.random().toString(36).slice(2);
+        }
+    }
+
+    function send(eventType, eventLabel) {
+        if (!window.sageTrackingAllowed || !window.sageTrackingAllowed()) return;
+        try {
+            var payload = JSON.stringify({
+                session_id  : readSessionId(),
+                event_type  : eventType,
+                event_label : eventLabel || null,
+                page_path   : location.pathname + location.search,
+                referrer    : document.referrer || null,
+            });
+            // sendBeacon survives page-unload (good for link_click on navigations).
+            if (navigator.sendBeacon) {
+                var blob = new Blob([payload], { type: 'application/json' });
+                navigator.sendBeacon(ENDPOINT, blob);
+            } else {
+                fetch(ENDPOINT, {
+                    method      : 'POST',
+                    headers     : { 'content-type': 'application/json' },
+                    body        : payload,
+                    keepalive   : true,
+                });
+            }
+        } catch (e) { /* swallow — tracking must never break the site */ }
+    }
+
+    function boot() {
+        if (booted) return;
+        booted = true;
+
+        // Page view (one per page load).
+        send('page_view');
+
+        // Book card clicks. Use event delegation so the handler survives DOM updates.
+        document.addEventListener('click', function (ev) {
+            var card = ev.target.closest('.book-card');
+            if (card) {
+                var title = card.querySelector('.book-title');
+                send('book_click', title ? title.textContent.trim() : 'unknown');
+            }
+            var link = ev.target.closest('a');
+            if (!link) return;
+            var href = link.getAttribute('href') || '';
+            if (href.startsWith('mailto:')) {
+                send('contact_click', href.replace('mailto:', ''));
+            } else if (/amazon\./i.test(href)) {
+                // Identify which book by the nearest book-title.
+                var nearTitle = link.closest('.book-card');
+                var label = nearTitle ? nearTitle.querySelector('.book-title').textContent.trim() : 'unknown';
+                send('amazon_click', label);
+            } else if (link.classList.contains('book-link')) {
+                var t2 = link.closest('.book-card');
+                send('link_click', t2 ? t2.querySelector('.book-title').textContent.trim() : 'link');
+            }
+        }, true);
+
+        // About-section view (fires once when scrolled into view).
+        var aboutEl = document.getElementById('about');
+        if (aboutEl && 'IntersectionObserver' in window) {
+            var aboutSeen = false;
+            new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting && !aboutSeen) {
+                        aboutSeen = true;
+                        send('about_view');
+                    }
+                });
+            }, { threshold: 0.4 }).observe(aboutEl);
+        }
+
+        // Scroll depth — 25 / 50 / 75 / 100 % milestones (each fires at most once).
+        var milestones = [25, 50, 75, 100];
+        var seen = {};
+        var doc = document.documentElement;
+        function onScroll() {
+            var pct = Math.min(100, Math.round(
+                ((window.pageYOffset + window.innerHeight) / doc.scrollHeight) * 100
+            ));
+            milestones.forEach(function (m) {
+                if (pct >= m && !seen[m]) { seen[m] = true; send('scroll_depth', String(m)); }
+            });
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    // If consent was already granted (returning visitor), boot on DOM ready.
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.sageTrackingAllowed && window.sageTrackingAllowed()) boot();
+    });
+
+    // If the visitor accepts on this load, boot immediately + record the accept.
+    document.addEventListener('sage:consent', function (ev) {
+        if (ev.detail && ev.detail.value === 'accepted') {
+            send('consent_accept');
+            boot();
+        }
+        // If they decline, we send nothing (no event, no tracking) by design.
+    });
+})();
