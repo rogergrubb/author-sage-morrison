@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title>Monthly Reflections — Sage Morrison's Newsletter</title>
+    <meta name="description" content="Monthly reflections from Sage Morrison — short, uplifting notes on recovery, self-regard, and coming home to yourself. No spam. Unsubscribe whenever.">
+    <link rel="canonical" href="https://www.authorsagemorrison.com/newsletter.html">
+    <link rel="icon" type="image/png" href="/sage-morrison.png">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Monthly Reflections — Sage Morrison's Newsletter">
+    <meta property="og:description" content="Short, uplifting notes on recovery, self-regard, and coming home to yourself.">
+    <meta property="og:url" content="https://www.authorsagemorrison.com/newsletter.html">
+    <meta property="og:image" content="https://www.authorsagemorrison.com/sage-morrison.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .news-hero {
+            max-width: 760px; margin: 0 auto; padding: 8rem 2rem 2rem;
+            text-align: center;
+        }
+        .news-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem; margin-bottom: 0.5rem; font-weight: 700;
+        }
+        .news-hero .tagline {
+            font-style: italic; color: rgba(0,0,0,0.65);
+            font-size: 1.2rem; margin-bottom: 2rem;
+        }
+        .news-hero p { line-height: 1.65; margin-bottom: 1.5rem; }
+        .signup-card {
+            background: rgba(244, 169, 44, 0.07);
+            border: 1px solid rgba(198, 107, 26, 0.18);
+            padding: 2rem; border-radius: 4px; margin: 2.5rem 0;
+        }
+        .signup-form {
+            display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;
+            margin-top: 1.2rem;
+        }
+        .signup-form input[type=email] {
+            font-family: inherit; font-size: 1rem; padding: 0.7rem 1rem;
+            border: 1px solid rgba(0,0,0,0.2); border-radius: 2px;
+            min-width: 260px; flex: 1 1 260px; max-width: 360px;
+            background: #fff;
+        }
+        .signup-form input[type=email]:focus {
+            outline: none; border-color: #C66B1A;
+        }
+        .signup-form button {
+            font-family: inherit; font-size: 1rem; padding: 0.7rem 1.6rem;
+            background: #C66B1A; color: #fff; border: 1px solid #C66B1A;
+            border-radius: 2px; cursor: pointer;
+            transition: background 0.18s, border-color 0.18s;
+        }
+        .signup-form button:hover { background: #F4A92C; border-color: #F4A92C; }
+        .signup-form button:disabled { opacity: 0.5; cursor: wait; }
+        .signup-status {
+            margin-top: 1rem; min-height: 1.4em;
+            font-style: italic; font-size: 1rem;
+        }
+        .signup-status.ok  { color: #6b8e3d; }
+        .signup-status.err { color: #b8424a; }
+        .news-promise {
+            text-align: left; max-width: 600px; margin: 2rem auto;
+            line-height: 1.7;
+        }
+        .news-promise ul { padding-left: 1.4rem; }
+        .news-promise li { margin-bottom: 0.5rem; }
+        .legal-back {
+            display: inline-block; margin-top: 2rem;
+            padding: 0.6rem 1.3rem; border: 1px solid currentColor;
+            text-decoration: none; border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="/" class="logo">Sage Morrison</a>
+            <div class="nav-links">
+                <a href="/#books">Books</a>
+                <a href="/blog/">Blog</a>
+                <a href="/#about">About</a>
+                <a href="/newsletter.html">Newsletter</a>
+                <a href="/#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="news-hero">
+        <h1>Monthly Reflections</h1>
+        <p class="tagline">Short notes on coming home to yourself.</p>
+
+        <p>If you've found your way to this corner of the internet, you're probably the kind of reader who already knows what it costs to be the dependable one, the easy one, the one who never makes a fuss. These reflections are for you.</p>
+
+        <p>About once a month — sometimes twice if I have something worth saying — I send a short note. Five minutes to read. Always uplifting, never sermonizing. Things I'm learning, things you might find useful, gentle invitations to come back to yourself.</p>
+
+        <div class="signup-card">
+            <strong>Get the next reflection in your inbox</strong>
+            <form id="signup-form" class="signup-form" novalidate>
+                <input type="email" id="email" placeholder="your email" autocomplete="email" required>
+                <button type="submit" id="signup-btn">Subscribe</button>
+            </form>
+            <div class="signup-status" id="signup-status"></div>
+            <p style="font-size:0.85rem; opacity:0.7; margin-top:1rem;">
+                Unsubscribe with one click, anytime. I'll never share your email.
+                See the <a href="/privacy.html">privacy policy</a> for the full picture.
+            </p>
+        </div>
+
+        <div class="news-promise">
+            <p><strong>What you'll get:</strong></p>
+            <ul>
+                <li>Short essays on recovery, self-regard, and the work of stopping the disappearing act.</li>
+                <li>An occasional gentle nudge — a question to sit with, a small practice for the week.</li>
+                <li>Quiet news when a new book or chapter lands.</li>
+            </ul>
+            <p><strong>What you won't get:</strong></p>
+            <ul>
+                <li>Marketing blasts. Affiliate spam. Performative urgency. Empty inspiration quotes.</li>
+                <li>Anything that adds noise to a life you're trying to quiet.</li>
+            </ul>
+        </div>
+
+        <a href="/" class="legal-back">← Back to the site</a>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">© 2026 Sage Morrison. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/privacy.html">Privacy Policy</a>
+                <a href="#">Terms of Use</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    (function () {
+        var form = document.getElementById('signup-form');
+        var btn  = document.getElementById('signup-btn');
+        var inp  = document.getElementById('email');
+        var st   = document.getElementById('signup-status');
+
+        function setStatus(msg, cls) {
+            st.textContent = msg;
+            st.className = 'signup-status ' + (cls || '');
+        }
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var email = (inp.value || '').trim().toLowerCase();
+            if (!email) { setStatus('An email is required.', 'err'); return; }
+            btn.disabled = true;
+            setStatus('Sending…');
+            try {
+                var res = await fetch('/api/subscribe', {
+                    method : 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body   : JSON.stringify({ email: email, source: 'newsletter_page' }),
+                });
+                var data = await res.json().catch(function () { return {}; });
+                if (data.status === 'subscribed') {
+                    setStatus('You’re in. Welcome — first reflection lands in your inbox soon.', 'ok');
+                    inp.value = '';
+                } else if (data.status === 'already_subscribed') {
+                    setStatus('You’re already on the list. Thank you for trying twice.', 'ok');
+                    inp.value = '';
+                } else if (data.status === 'invalid') {
+                    setStatus('That email doesn’t look quite right. Try again?', 'err');
+                } else {
+                    setStatus('Something stalled on our end. Try again in a moment?', 'err');
+                }
+            } catch (e) {
+                setStatus('Network hiccup. Try again in a moment.', 'err');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

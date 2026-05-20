@@ -1,0 +1,44 @@
+name: Weekly Sage Blog Post
+
+on:
+  schedule:
+    # Every Monday at 13:00 UTC (≈ 6am Pacific / 9am Eastern)
+    - cron: "0 13 * * 1"
+  workflow_dispatch:   # allow manual trigger from the Actions tab
+
+permissions:
+  contents: write       # so the action can commit the new post back
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate post
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL:   ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-6' }}
+        run: python scripts/generate_weekly_post.py
+
+      - name: Commit and push
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No new post to commit (idempotent skip)."
+            exit 0
+          fi
+          git config user.name  "Sage Morrison Bot"
+          git config user.email "bot@authorsagemorrison.com"
+          git add blog/ sitemap.xml
+          git commit -m "Weekly reflection: $(date -u +%Y-%m-%d)
+
+Auto-generated post in Sage Morrison's voice (direct address,
+uplifting, no 12-step coding, no therapy-speak). Triggered by
+.github/workflows/weekly-blog-post.yml."
+          git push origin main
